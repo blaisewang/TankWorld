@@ -172,9 +172,9 @@ class Tank {
         }
         Color color = graphics.getColor();
         if (this.isGood) {
-            graphics.setColor(Color.red);
+            graphics.setColor(new Color(231, 76, 60));
         } else {
-            graphics.setColor(Color.green);
+            graphics.setColor(new Color(26, 186, 154));
         }
 
         graphics.fillRect(this.tankX, this.tankY, TANK_WIDTH, Tank.TANK_HEIGHT);

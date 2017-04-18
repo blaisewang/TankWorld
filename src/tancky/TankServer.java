@@ -17,9 +17,9 @@ import java.util.Date;
 import java.util.List;
 
 public class TankServer {
-    private static int tankID = 100;
-    static final int TCP_SERVER_PORT = 46464;
-    static final int UDP_SERVER_PORT = 6666;
+    private static int tankID = 1;
+    private static final int TCP_SERVER_PORT = 46464;
+    static final int UDP_SERVER_PORT = 66666;
 
     private List<Client> clients = new ArrayList<>();
 
@@ -37,7 +37,11 @@ public class TankServer {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 try {
                     String logString = simpleDateFormat.format(new Date()) + "\r\n" + socketIP + ":" + socketPort + " -> " + socketUdpPort + "\r\n\r\n";
-                    Files.write(Paths.get("server.log"), logString.getBytes(), StandardOpenOption.APPEND);
+                    if (Files.exists(Paths.get("server.log"))) {
+                        Files.write(Paths.get("server.log"), logString.getBytes(), StandardOpenOption.APPEND);
+                    } else {
+                        Files.createFile(Paths.get("server.log"));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

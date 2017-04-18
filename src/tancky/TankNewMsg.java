@@ -9,9 +9,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
 public class TankNewMsg implements Msg {
-
     private Tank tank;
-
     private TankClient tankClient;
 
     TankNewMsg(Tank tank) {

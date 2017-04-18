@@ -63,6 +63,7 @@ public class TankClient extends JFrame {
                 MissileDeadMsg mdm = new MissileDeadMsg(missile.tankID, missile.id);
                 netClient.send(mdm);
             }
+
             missile.draw(gOffScreen);
         }
 
@@ -121,24 +122,18 @@ public class TankClient extends JFrame {
 
     class ConnectDialog extends Dialog {
         Button button = new Button("Link");
-        TextField textFieldIP = new TextField("127.0.0.1", 12);
-        TextField textFieldPort = new TextField("" + TankServer.TCP_SERVER_PORT, 4);
-        TextField textFieldUDPPort = new TextField(4);
+        TextField textFieldIP = new TextField("127.0.0.1", 16);
 
         ConnectDialog() {
             super(TankClient.this, true);
             this.setLayout(new FlowLayout());
             this.add(new Label("IP:"));
             this.add(textFieldIP);
-            this.add(new Label("Port:"));
-            this.add(textFieldPort);
-            this.add(new Label("UDP Port:"));
-            this.add(textFieldUDPPort);
             this.add(button);
             button.addActionListener(e -> {
                 String IP = textFieldIP.getText().trim();
-                int TCPPort = Integer.parseInt(textFieldPort.getText().trim());
-                int UDPPort = Integer.parseInt(textFieldUDPPort.getText().trim());
+                int TCPPort = 46464;
+                int UDPPort = (int) (Math.random() * 10000);
                 netClient.setUdpPort(UDPPort);
                 netClient.connect(IP, TCPPort);
                 setVisible(false);

@@ -9,10 +9,8 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
 public class MissileDeadMsg implements Msg {
-
     private int ID;
     private int tankId;
-
     private TankClient tankClient;
 
     MissileDeadMsg(int tankId, int ID) {
@@ -32,20 +30,17 @@ public class MissileDeadMsg implements Msg {
             dataOutputStream.writeInt(tankId);
             dataOutputStream.writeInt(ID);
             dataOutputStream.flush();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         byte[] buffer = byteArrayOutputStream.toByteArray();
-
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort));
         try {
             datagramSocket.send(datagramPacket);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
