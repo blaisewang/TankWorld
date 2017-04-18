@@ -9,76 +9,62 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
 public class TankDeadMsg implements Msg {
-	int msgType = Msg.TANK_DEAD_MSG ;
-	
-	int id ; 
-	
-	TankClient tc ; 
-	
-	
-	public TankDeadMsg (int id ){
-		this.id = id ;
-	}
-	
-	
-	public TankDeadMsg (TankClient tc){
-		this.tc = tc ; 
-	}
-	
-	
-	
-	
-	
 
-	@Override
-	public void send(DatagramSocket ds, String IP, int udpPort) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream() ;
-		DataOutputStream dos = new DataOutputStream(baos) ;
-		try {
-			dos.writeInt(msgType);
-			dos.writeInt(id);
-			dos.flush();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		byte[] buf = baos.toByteArray();
-		
-		DatagramPacket dp = new DatagramPacket (buf , buf.length , new InetSocketAddress(IP , udpPort)) ; 
-		try {
-			ds.send(dp);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-	}
+    private int ID;
+    private TankClient tankClient;
 
-	@Override
-	public void parse(DataInputStream dis) {
-		try {
-			int id = dis.readInt();
-			
-			if(tc.myTank.id == id){
-				return ;
-			}
-			
-			for(int i = 0 ; i < tc.enemyTanks.size() ; i ++){
-				Tank t = tc.enemyTanks.get(i);
-				if(t.id == id){
-					t.setLive(false);
-					break;
-				}
-			}
-			
-			
-			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    TankDeadMsg(int ID) {
+        this.ID = ID;
+    }
 
-	}
+    TankDeadMsg(TankClient tankClient) {
+        this.tankClient = tankClient;
+    }
+
+    @Override
+    public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(byteArrayOutputStream);
+        try {
+            dos.writeInt(Msg.TANK_DEAD_MSG);
+            dos.writeInt(ID);
+            dos.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        byte[] buffer = byteArrayOutputStream.toByteArray();
+
+        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort));
+        try {
+            datagramSocket.send(datagramPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void parse(DataInputStream dataInputStream) {
+        try {
+            int ID = dataInputStream.readInt();
+
+            if (tankClient.tank.id == ID) {
+                return;
+            }
+
+            for (int i = 0; i < tankClient.enemyTanks.size(); i++) {
+                Tank t = tankClient.enemyTanks.get(i);
+                if (t.id == ID) {
+                    t.setLive();
+                    break;
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 }

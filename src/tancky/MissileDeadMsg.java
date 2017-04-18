@@ -9,83 +9,61 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
 public class MissileDeadMsg implements Msg {
-	
-	int msgType = Msg.MISSILE_DEAD_MSG ;
-	
-	int id ; 
-	int tankId ; 
-	
-	
-	TankClient tc ; 
-	
-	
-	public MissileDeadMsg (int tankId ,int id ){
-		this.tankId = tankId ; 
-//System.out.println("TANKID IS " + tankId);
-		this.id = id ;
-	}
-	
-	
-	public MissileDeadMsg (TankClient tc){
-		this.tc = tc ; 
-	}
-	
-	
-	
-	
-	
 
-	public void send(DatagramSocket ds, String IP, int udpPort) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream() ;
-		DataOutputStream dos = new DataOutputStream(baos) ;
-		try {
-			dos.writeInt(msgType);
-			dos.writeInt(tankId);
-//System.out.println("TANKID IS " + tankId);
-			dos.writeInt(id);
-			dos.flush();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		byte[] buf = baos.toByteArray();
-		
-		DatagramPacket dp = new DatagramPacket (buf , buf.length , new InetSocketAddress(IP , udpPort)) ; 
-		try {
-			ds.send(dp);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		
-	}
+    private int ID;
+    private int tankId;
 
-	@Override
-	public void parse(DataInputStream dis) {
-		try {
-			int tankId = dis.readInt();
-			
-			
-			int id = dis.readInt();
-			
-			for(int i = 0 ; i < tc.missiles.size() ; i ++){
-				Missile m = tc.missiles.get(i);
-				if(m.tankID == tankId && m.id == id){
-					m.live = false ;
-					tc.explodes.add(new Explode(m.x, m.y, tc));
-					break;
-					
-				}
-			}
-			
-			
-			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    private TankClient tankClient;
 
-	}
+    MissileDeadMsg(int tankId, int ID) {
+        this.tankId = tankId;
+        this.ID = ID;
+    }
 
+    MissileDeadMsg(TankClient tankClient) {
+        this.tankClient = tankClient;
+    }
+
+    public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
+        try {
+            dataOutputStream.writeInt(MISSILE_DEAD_MSG);
+            dataOutputStream.writeInt(tankId);
+            dataOutputStream.writeInt(ID);
+            dataOutputStream.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        byte[] buffer = byteArrayOutputStream.toByteArray();
+
+        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort));
+        try {
+            datagramSocket.send(datagramPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void parse(DataInputStream dataInputStream) {
+        try {
+            int tankId = dataInputStream.readInt();
+            int ID = dataInputStream.readInt();
+
+            for (int i = 0; i < tankClient.missiles.size(); i++) {
+                Missile missile = tankClient.missiles.get(i);
+                if (missile.tankID == tankId && missile.id == ID) {
+                    missile.live = false;
+                    tankClient.explodes.add(new Explode(missile.x, missile.y, tankClient));
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
