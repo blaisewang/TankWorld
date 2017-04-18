@@ -1,2 +1,2 @@
 # TankWorld
-A simple network game
+A simple online game
