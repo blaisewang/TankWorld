@@ -8,7 +8,12 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TankServer {
@@ -27,7 +32,15 @@ public class TankServer {
                 Socket socket = serverSocket.accept();
                 DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                 String socketIP = socket.getInetAddress().getHostAddress();
+                int socketPort = socket.getPort();
                 int socketUdpPort = dataInputStream.readInt();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    String logString = simpleDateFormat.format(new Date()) + "\r\n" + socketIP + ":" + socketPort + " -> " + socketUdpPort + "\r\n\r\n";
+                    Files.write(Paths.get("server.log"), logString.getBytes(), StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 Client client = new Client(socketIP, socketUdpPort);
                 clients.add(client);
