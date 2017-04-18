@@ -33,7 +33,7 @@ public class MissileNewMsg implements Msg {
             dos.writeBoolean(missile.isGood());
             dos.flush();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

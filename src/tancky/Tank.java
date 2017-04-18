@@ -319,7 +319,6 @@ class Tank {
                 break;
         }
         location();
-
     }
 
     Rectangle getRect() {

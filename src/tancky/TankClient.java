@@ -1,13 +1,6 @@
 package tancky;
 
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Dialog;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Label;
-import java.awt.TextField;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -34,7 +27,6 @@ public class TankClient extends JFrame {
     private Image offScreenImage = null;
 
     public void paint(Graphics g) {
-
         if (offScreenImage == null) {
             offScreenImage = this.createImage(GAME_WIDTH, GAME_HEIGHT);
         }
@@ -48,9 +40,9 @@ public class TankClient extends JFrame {
         tank.draw(gOffScreen);
 
         gOffScreen.setColor(Color.black);
-        gOffScreen.drawString("Missiles   Count:" + missiles.size(), 10, 50);
-        gOffScreen.drawString("Explodes   Count:" + explodes.size(), 10, 70);
-        gOffScreen.drawString("enemyTanks Count:" + enemyTanks.size(), 10, 90);
+        gOffScreen.drawString("Kill: " + explodes.size(), 10, 50);
+        gOffScreen.drawString("Enemies: " + enemyTanks.size(), 10, 70);
+        gOffScreen.drawString("Missiles: " + missiles.size(), 10, 90);
 
         for (Tank tank : enemyTanks) {
             tank.draw(gOffScreen);
@@ -63,7 +55,6 @@ public class TankClient extends JFrame {
                 MissileDeadMsg mdm = new MissileDeadMsg(missile.tankID, missile.id);
                 netClient.send(mdm);
             }
-
             missile.draw(gOffScreen);
         }
 
@@ -77,13 +68,16 @@ public class TankClient extends JFrame {
 
 
     private void launchFrame() {
-        this.setLocation(300, 150);
+        int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
+        this.setLocation((screenWidth - GAME_WIDTH) / 2, (screenHeight - GAME_HEIGHT) / 2);
         this.setSize(GAME_WIDTH, GAME_HEIGHT);
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setTitle("TankWar");
         this.setVisible(true);
         this.addKeyListener(new KeyMonitor());
+        this.connectDialog.setVisible(true);
         new Thread(new PaintThread()).start();
     }
 
@@ -98,11 +92,19 @@ public class TankClient extends JFrame {
                 repaint();
                 try {
                     Thread.sleep(50);
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    private void enterIP(String IP) {
+        int TCPPort = 46464;
+        int UDPPort = (int) (Math.random() * 10000);
+        netClient.setUdpPort(UDPPort);
+        connectDialog.setVisible(false);
+        connectDialog.setVisible(!netClient.connect(IP, TCPPort));
     }
 
     private class KeyMonitor extends KeyAdapter {
@@ -111,11 +113,22 @@ public class TankClient extends JFrame {
         }
 
         public void keyPressed(KeyEvent e) {
-            int key = e.getKeyCode();
-            if (key == KeyEvent.VK_C) {
-                connectDialog.setVisible(true);
-            } else {
-                tank.keyPressed(e);
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_C:
+                    connectDialog.setVisible(true);
+                    break;
+                case KeyEvent.VK_ESCAPE:
+                    connectDialog.setVisible(false);
+                case KeyEvent.VK_ENTER:
+                    if (connectDialog.isVisible()) {
+                        enterIP(connectDialog.textFieldIP.getText().trim());
+                    }
+                    break;
+                default:
+                    if (!connectDialog.isVisible()) {
+                        tank.keyPressed(e);
+                    }
+                    break;
             }
         }
     }
@@ -126,20 +139,14 @@ public class TankClient extends JFrame {
 
         ConnectDialog() {
             super(TankClient.this, true);
+            textFieldIP.addKeyListener(new KeyMonitor());
             this.setLayout(new FlowLayout());
-            this.add(new Label("IP:"));
+            this.add(new Label("Host IP :"));
             this.add(textFieldIP);
             this.add(button);
-            button.addActionListener(e -> {
-                String IP = textFieldIP.getText().trim();
-                int TCPPort = 46464;
-                int UDPPort = (int) (Math.random() * 10000);
-                netClient.setUdpPort(UDPPort);
-                netClient.connect(IP, TCPPort);
-                setVisible(false);
-            });
+            button.addActionListener(e -> enterIP(textFieldIP.getText().trim()));
             this.pack();
-            this.setLocation(450, 300);
+            this.setLocationRelativeTo(null);
             this.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
                     setVisible(false);

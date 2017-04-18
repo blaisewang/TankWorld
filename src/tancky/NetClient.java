@@ -25,7 +25,7 @@ public class NetClient {
     }
 
 
-    void connect(String IP, int port) {
+    boolean connect(String IP, int port) {
         this.IP = IP;
         try {
             datagramSocket = new DatagramSocket(udpPort);
@@ -36,7 +36,6 @@ public class NetClient {
         Socket socket = null;
         try {
             socket = new Socket(IP, port);
-            System.out.println("The client connects the server ! ");
             DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
             DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream.writeInt(this.udpPort);
@@ -54,6 +53,7 @@ public class NetClient {
             dataInputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         } finally {
             if (socket != null) {
                 try {
@@ -67,6 +67,7 @@ public class NetClient {
         TankNewMsg tankNewMsg = new TankNewMsg(tankClient.tank);
         send(tankNewMsg);
         new Thread(new UDPReceiveThread()).start();
+        return true;
     }
 
 

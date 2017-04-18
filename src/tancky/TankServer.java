@@ -19,7 +19,7 @@ import java.util.List;
 public class TankServer {
     private static int tankID = 1;
     private static final int TCP_SERVER_PORT = 46464;
-    static final int UDP_SERVER_PORT = 66666;
+    static final int UDP_SERVER_PORT = 65432;
 
     private List<Client> clients = new ArrayList<>();
 
