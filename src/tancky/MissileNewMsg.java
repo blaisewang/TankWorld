@@ -20,47 +20,46 @@ public class MissileNewMsg implements Msg {
         this.tankClient = tankClient;
     }
 
+    @Override
     public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(byteArrayOutputStream);
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
         try {
-            dos.writeInt(MISSILE_NEW_MSG);
-            dos.writeInt(missile.tankID);
-            dos.writeInt(missile.id);
-            dos.writeInt(missile.x);
-            dos.writeInt(missile.y);
-            dos.writeInt(this.missile.direction.ordinal());
-            dos.writeBoolean(missile.isGood());
-            dos.flush();
-
+            dataOutputStream.writeInt(MISSILE_NEW_MSG);
+            dataOutputStream.writeInt(missile.tankID);
+            dataOutputStream.writeInt(missile.id);
+            dataOutputStream.writeInt(missile.x);
+            dataOutputStream.writeInt(missile.y);
+            dataOutputStream.writeInt(this.missile.direction.ordinal());
+            dataOutputStream.writeBoolean(missile.isGood());
+            dataOutputStream.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-        DatagramPacket datagramPacket = new DatagramPacket(byteArray, byteArray.length, new InetSocketAddress(IP, udpPort));
         try {
-            datagramSocket.send(datagramPacket);
+            datagramSocket.send(new DatagramPacket(byteArray, byteArray.length, new InetSocketAddress(IP, udpPort)));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    @Override
     public void parse(DataInputStream dataInputStream) {
         try {
             int tankId = dataInputStream.readInt();
+            int ID = dataInputStream.readInt();
             if (tankId == tankClient.tank.id) {
                 return;
             }
-            int readInt = dataInputStream.readInt();
 
             int x = dataInputStream.readInt();
             int y = dataInputStream.readInt();
             Direction direction = Direction.values()[dataInputStream.readInt()];
             boolean isGood = dataInputStream.readBoolean();
             Missile missile = new Missile(tankId, x, y, isGood, direction, tankClient);
-            missile.id = readInt;
+            missile.id = ID;
             tankClient.missiles.add(missile);
         } catch (IOException e) {
             e.printStackTrace();

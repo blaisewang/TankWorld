@@ -22,6 +22,7 @@ public class MissileDeadMsg implements Msg {
         this.tankClient = tankClient;
     }
 
+    @Override
     public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
@@ -35,9 +36,8 @@ public class MissileDeadMsg implements Msg {
         }
 
         byte[] buffer = byteArrayOutputStream.toByteArray();
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort));
         try {
-            datagramSocket.send(datagramPacket);
+            datagramSocket.send(new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort)));
         } catch (IOException e) {
             e.printStackTrace();
         }

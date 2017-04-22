@@ -36,15 +36,12 @@ public class TankNewMsg implements Msg {
         }
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
-
-        DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length, new InetSocketAddress(IP, udpPort));
         try {
-            datagramSocket.send(datagramPacket);
+            datagramSocket.send(new DatagramPacket(bytes, bytes.length, new InetSocketAddress(IP, udpPort)));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     public void parse(DataInputStream dataInputStream) {
         try {
@@ -55,23 +52,21 @@ public class TankNewMsg implements Msg {
 
             int x = dataInputStream.readInt();
             int y = dataInputStream.readInt();
-            Direction dir = Direction.values()[dataInputStream.readInt()];
-            boolean good = dataInputStream.readBoolean();
-            boolean exist = false;
+            Direction direction = Direction.values()[dataInputStream.readInt()];
+            boolean isGood = dataInputStream.readBoolean();
+            boolean isExisted = false;
 
             for (int i = 0; i < tankClient.enemyTanks.size(); i++) {
-                Tank t = tankClient.enemyTanks.get(i);
-                if (t.id == id) {
-                    exist = true;
+                if (tankClient.enemyTanks.get(i).id == id) {
+                    isExisted = true;
                     break;
                 }
             }
 
-            if (!exist) {
-                TankNewMsg tankNewMsg = new TankNewMsg(tankClient.tank);
-                tankClient.netClient.send(tankNewMsg);
+            if (!isExisted) {
+                tankClient.netClient.send(new TankNewMsg(tankClient.tank));
 
-                Tank tank = new Tank(x, y, good, dir, tankClient);
+                Tank tank = new Tank(x, y, isGood, direction, tankClient);
                 tank.id = id;
                 tankClient.enemyTanks.add(tank);
             }

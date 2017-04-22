@@ -8,20 +8,24 @@ import java.awt.event.*;
 class Tank {
     int tankX;
     int tankY;
-
     int id;
 
     private boolean buttonUP = false;
     private boolean buttonDown = false;
     private boolean buttonLeft = false;
     private boolean buttonRight = false;
+    private boolean isLive = true;
+    private boolean isGood;
+
+    private static final int TANK_WIDTH = 30;
+    private static final int TANK_HEIGHT = 30;
+    private static final int SPEED = 15;
+    private static final int UP_LIMIT = 16;
 
     Direction direction;
     Direction barrelDirection = Direction.D;
 
     private TankClient tankClient;
-
-    private boolean isGood;
 
     boolean isGood() {
         return isGood;
@@ -31,8 +35,6 @@ class Tank {
         this.isGood = good;
     }
 
-    private boolean isLive = true;
-
     boolean isLive() {
         return isLive;
     }
@@ -40,12 +42,6 @@ class Tank {
     void setLive() {
         this.isLive = false;
     }
-
-    private static final int TANK_WIDTH = 30;
-    private static final int TANK_HEIGHT = 30;
-    private static final int SPEED = 15;
-
-    private static final int upLimit = 16;
 
     private Tank(int x, int y, boolean isGood) {
         this.tankX = x;
@@ -61,7 +57,7 @@ class Tank {
 
     private boolean checkEdge(int x, int y) {
         return x >= 0 && x <= (TankClient.GAME_WIDTH - TANK_WIDTH)
-                && y >= upLimit && y <= TankClient.GAME_HEIGHT - TANK_HEIGHT;
+                && y >= UP_LIMIT && y <= TankClient.GAME_HEIGHT - TANK_HEIGHT;
     }
 
     private void move() {
@@ -127,7 +123,6 @@ class Tank {
             case STOP:
                 break;
         }
-
         if (this.direction != Direction.STOP) {
             this.barrelDirection = this.direction;
         }
@@ -155,7 +150,6 @@ class Tank {
         } else if (!buttonUP && !buttonDown && !buttonLeft) {
             direction = Direction.STOP;
         }
-
         if (this.direction != oldDirection) {
             TankMoveMsg msg = new TankMoveMsg(id, this.tankX, this.tankY, direction, this.barrelDirection);
             tankClient.netClient.send(msg);
@@ -166,7 +160,6 @@ class Tank {
         if (!this.isLive) {
             if (!this.isGood) {
                 tankClient.enemyTanks.remove(this);
-
             }
             return;
         }
@@ -190,7 +183,6 @@ class Tank {
         graphics.setColor(color);
         move();
     }
-
 
     private int countX2() {
         double x = 0;
@@ -222,7 +214,6 @@ class Tank {
             default:
                 break;
         }
-
         return (int) x;
     }
 
@@ -256,33 +247,27 @@ class Tank {
             default:
                 break;
         }
-
         return (int) y;
     }
 
-    void keyPressed(KeyEvent e) {
-        int key = e.getKeyCode();
+    void keyPressed(KeyEvent keyEvent) {
+        int key = keyEvent.getKeyCode();
         switch (key) {
-
             case KeyEvent.VK_W:
                 buttonUP = true;
                 break;
-
             case KeyEvent.VK_S:
                 buttonDown = true;
                 break;
-
             case KeyEvent.VK_A:
                 buttonLeft = true;
                 break;
-
             case KeyEvent.VK_D:
                 buttonRight = true;
                 break;
         }
         location();
     }
-
 
     private void fire() {
         if (!this.isLive) {
@@ -294,10 +279,8 @@ class Tank {
 
         Missile missile = new Missile(id, x, y, isGood, this.barrelDirection, this.tankClient);
         tankClient.missiles.add(missile);
-        MissileNewMsg msg = new MissileNewMsg(missile);
-        tankClient.netClient.send(msg);
+        tankClient.netClient.send(new MissileNewMsg(missile));
     }
-
 
     void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();

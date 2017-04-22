@@ -30,24 +30,22 @@ public class TankMoveMsg implements Msg {
 
     public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(byteArrayOutputStream);
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
         try {
-            dos.writeInt(Msg.TANK_MOVE_MSG);
-            dos.writeInt(this.id);
-            dos.writeInt(x);
-            dos.writeInt(y);
-            dos.writeInt(this.direction.ordinal());
-            dos.writeInt(this.ptDirection.ordinal());
-            dos.flush();
+            dataOutputStream.writeInt(Msg.TANK_MOVE_MSG);
+            dataOutputStream.writeInt(this.id);
+            dataOutputStream.writeInt(x);
+            dataOutputStream.writeInt(y);
+            dataOutputStream.writeInt(this.direction.ordinal());
+            dataOutputStream.writeInt(this.ptDirection.ordinal());
+            dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
-
-        DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length, new InetSocketAddress(IP, udpPort));
         try {
-            datagramSocket.send(datagramPacket);
+            datagramSocket.send(new DatagramPacket(bytes, bytes.length, new InetSocketAddress(IP, udpPort)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,20 +62,19 @@ public class TankMoveMsg implements Msg {
 
             int x = dataInputStream.readInt();
             int y = dataInputStream.readInt();
-            Direction dir = Direction.values()[dataInputStream.readInt()];
-            Direction ptDir = Direction.values()[dataInputStream.readInt()];
+            Direction direction = Direction.values()[dataInputStream.readInt()];
+            Direction barrelDirection = Direction.values()[dataInputStream.readInt()];
 
             for (int i = 0; i < tankClient.enemyTanks.size(); i++) {
-                Tank t = tankClient.enemyTanks.get(i);
-                if (t.id == id) {
-                    t.tankX = x;
-                    t.tankY = y;
-                    t.direction = dir;
-                    t.barrelDirection = ptDir;
+                Tank tank = tankClient.enemyTanks.get(i);
+                if (tank.id == id) {
+                    tank.tankX = x;
+                    tank.tankY = y;
+                    tank.direction = direction;
+                    tank.barrelDirection = barrelDirection;
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

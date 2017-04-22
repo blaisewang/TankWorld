@@ -11,20 +11,20 @@ import java.util.List;
 import javax.swing.*;
 
 public class TankClient extends JFrame {
-    NetClient netClient = new NetClient(this);
-
-    private ConnectDialog connectDialog = new ConnectDialog();
-
     static final int GAME_WIDTH = 800;
     static final int GAME_HEIGHT = 600;
-
-    Tank tank = new Tank(0, 570, true, Direction.STOP, this);
 
     List<Missile> missiles = new ArrayList<>();
     List<Explode> explodes = new ArrayList<>();
     List<Tank> enemyTanks = new ArrayList<>();
 
     private Image offScreenImage = null;
+
+    NetClient netClient = new NetClient(this);
+
+    private ConnectDialog connectDialog = new ConnectDialog();
+
+    Tank tank = new Tank(0, 570, true, Direction.STOP, this);
 
     public void paint(Graphics g) {
         if (offScreenImage == null) {
@@ -50,22 +50,19 @@ public class TankClient extends JFrame {
 
         for (Missile missile : missiles) {
             if (missile.hitTank(tank)) {
-                TankDeadMsg tdm = new TankDeadMsg(tank.id);
-                netClient.send(tdm);
-                MissileDeadMsg mdm = new MissileDeadMsg(missile.tankID, missile.id);
-                netClient.send(mdm);
+                netClient.send(new TankDeadMsg(tank.id));
+                netClient.send(new MissileDeadMsg(missile.tankID, missile.id));
             }
             missile.draw(gOffScreen);
         }
 
-        for (Explode e : explodes) {
-            e.draw(gOffScreen);
+        for (Explode explode : explodes) {
+            explode.draw(gOffScreen);
         }
 
         gOffScreen.setColor(color);
         g.drawImage(offScreenImage, 0, 0, null);
     }
-
 
     private void launchFrame() {
         int screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -94,6 +91,7 @@ public class TankClient extends JFrame {
                     Thread.sleep(50);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    return;
                 }
             }
         }
@@ -101,8 +99,7 @@ public class TankClient extends JFrame {
 
     private void enterIP(String IP) {
         int TCPPort = 46464;
-        int UDPPort = (int) (Math.random() * 10000);
-        netClient.setUdpPort(UDPPort);
+        netClient.setUdpPort((int) (Math.random() * 10000));
         connectDialog.setVisible(false);
         connectDialog.setVisible(!netClient.connect(IP, TCPPort));
     }
@@ -112,8 +109,8 @@ public class TankClient extends JFrame {
             tank.keyReleased(keyEvent);
         }
 
-        public void keyPressed(KeyEvent e) {
-            switch (e.getKeyCode()) {
+        public void keyPressed(KeyEvent keyEvent) {
+            switch (keyEvent.getKeyCode()) {
                 case KeyEvent.VK_C:
                     connectDialog.setVisible(true);
                     break;
@@ -126,7 +123,7 @@ public class TankClient extends JFrame {
                     break;
                 default:
                     if (!connectDialog.isVisible()) {
-                        tank.keyPressed(e);
+                        tank.keyPressed(keyEvent);
                     }
                     break;
             }
@@ -134,7 +131,7 @@ public class TankClient extends JFrame {
     }
 
     class ConnectDialog extends Dialog {
-        Button button = new Button("Link");
+        Button button = new Button("Connect");
         TextField textFieldIP = new TextField("127.0.0.1", 16);
 
         ConnectDialog() {

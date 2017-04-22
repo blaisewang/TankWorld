@@ -24,7 +24,6 @@ public class NetClient {
         this.tankClient = tankClient;
     }
 
-
     boolean connect(String IP, int port) {
         this.IP = IP;
         try {
@@ -64,8 +63,7 @@ public class NetClient {
             }
         }
 
-        TankNewMsg tankNewMsg = new TankNewMsg(tankClient.tank);
-        send(tankNewMsg);
+        send(new TankNewMsg(tankClient.tank));
         new Thread(new UDPReceiveThread()).start();
         return true;
     }
@@ -80,11 +78,10 @@ public class NetClient {
 
         public void run() {
             while (datagramSocket != null) {
-                DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 try {
-                    datagramSocket.receive(dp);
-                    parse(dp);
-
+                    datagramSocket.receive(datagramPacket);
+                    parse(datagramPacket);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -92,8 +89,7 @@ public class NetClient {
         }
 
         private void parse(DatagramPacket datagramPacket) {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(buffer, 0, datagramPacket.getLength());
-            DataInputStream dataInputStream = new DataInputStream(byteArrayInputStream);
+            DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(buffer, 0, datagramPacket.getLength()));
             try {
                 int msgType = dataInputStream.readInt();
                 Msg msg;

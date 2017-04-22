@@ -18,8 +18,8 @@ import java.util.List;
 
 public class TankServer {
     private static int tankID = 1;
-    private static final int TCP_SERVER_PORT = 46464;
     static final int UDP_SERVER_PORT = 65432;
+    private static final int TCP_SERVER_PORT = 46464;
 
     private List<Client> clients = new ArrayList<>();
 
@@ -30,13 +30,11 @@ public class TankServer {
             ServerSocket serverSocket = new ServerSocket(TCP_SERVER_PORT);
             while (true) {
                 Socket socket = serverSocket.accept();
-                DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
                 String socketIP = socket.getInetAddress().getHostAddress();
                 int socketPort = socket.getPort();
-                int socketUdpPort = dataInputStream.readInt();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                int socketUdpPort = new DataInputStream(socket.getInputStream()).readInt();
                 try {
-                    String logString = simpleDateFormat.format(new Date()) + "\r\n" + socketIP + ":" + socketPort + " -> " + socketUdpPort + "\r\n\r\n";
+                    String logString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\r\n" + socketIP + ":" + socketPort + " -> " + socketUdpPort + "\r\n\r\n";
                     if (Files.exists(Paths.get("server.log"))) {
                         Files.write(Paths.get("server.log"), logString.getBytes(), StandardOpenOption.APPEND);
                     } else {
@@ -46,13 +44,11 @@ public class TankServer {
                     e.printStackTrace();
                 }
 
-                Client client = new Client(socketIP, socketUdpPort);
-                clients.add(client);
+                clients.add(new Client(socketIP, socketUdpPort));
                 DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataOutputStream.writeInt(tankID++);
                 dataOutputStream.flush();
                 dataOutputStream.close();
-                dataInputStream.close();
                 socket.close();
 
                 if (serverSocket.isClosed()) {
@@ -65,8 +61,7 @@ public class TankServer {
     }
 
     public static void main(String[] args) {
-        TankServer tankServer = new TankServer();
-        tankServer.launch();
+        new TankServer().launch();
     }
 
     private class Client {

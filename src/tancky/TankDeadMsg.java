@@ -9,7 +9,6 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
 public class TankDeadMsg implements Msg {
-
     private int ID;
     private TankClient tankClient;
 
@@ -24,21 +23,18 @@ public class TankDeadMsg implements Msg {
     @Override
     public void send(DatagramSocket datagramSocket, String IP, int udpPort) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(byteArrayOutputStream);
+        DataOutputStream dataOutputStream = new DataOutputStream(byteArrayOutputStream);
         try {
-            dos.writeInt(Msg.TANK_DEAD_MSG);
-            dos.writeInt(ID);
-            dos.flush();
-
+            dataOutputStream.writeInt(Msg.TANK_DEAD_MSG);
+            dataOutputStream.writeInt(ID);
+            dataOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         byte[] buffer = byteArrayOutputStream.toByteArray();
-
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort));
         try {
-            datagramSocket.send(datagramPacket);
+            datagramSocket.send(new DatagramPacket(buffer, buffer.length, new InetSocketAddress(IP, udpPort)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,17 +50,14 @@ public class TankDeadMsg implements Msg {
             }
 
             for (int i = 0; i < tankClient.enemyTanks.size(); i++) {
-                Tank t = tankClient.enemyTanks.get(i);
-                if (t.id == ID) {
-                    t.setLive();
+                Tank tank = tankClient.enemyTanks.get(i);
+                if (tank.id == ID) {
+                    tank.setLive();
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 }

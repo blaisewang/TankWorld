@@ -5,30 +5,25 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 class Missile {
-
     int x, y;
+    int tankID;
+    int id;
+
+    static final int WIDTH = 10;
+    static final int HEIGHT = 10;
+    private static int ID = 1;
+    private static final int SPEED = 20;
+
+    private boolean good;
+    boolean live = true;
 
     Direction direction;
 
     private TankClient tankClient;
 
-    static final int WIDTH = 10;
-    static final int HEIGHT = 10;
-
-    private static final int SPEED = 20;
-
-    private static int ID = 1;
-
-    int tankID;
-    int id;
-
-    private boolean good;
-
     boolean isGood() {
         return good;
     }
-
-    boolean live = true;
 
     private Missile(int tankID, int x, int y, Direction direction) {
         this.tankID = tankID;
@@ -38,7 +33,6 @@ class Missile {
         this.id = ID++;
     }
 
-
     Missile(int tankID, int x, int y, boolean good, Direction direction, TankClient tankClient) {
         this(tankID, x, y, direction);
         this.good = good;
@@ -46,7 +40,6 @@ class Missile {
     }
 
     void draw(Graphics g) {
-
         if (!this.live) {
             tankClient.missiles.remove(this);
             return;
@@ -55,10 +48,8 @@ class Missile {
 
         if (this.good) {
             g.setColor(Color.black);
-
         } else {
             g.setColor(Color.blue);
-
         }
 
         g.fillOval(x, y, WIDTH, HEIGHT);
@@ -68,47 +59,37 @@ class Missile {
 
     private void move() {
         switch (direction) {
-
             case U:
                 y -= SPEED;
                 break;
-
             case RU:
                 x += SPEED;
                 y -= SPEED;
                 break;
-
             case R:
                 x += SPEED;
                 break;
-
             case RD:
                 x += SPEED;
                 y += SPEED;
                 break;
-
             case D:
                 y += SPEED;
                 break;
-
             case LD:
                 x -= SPEED;
                 y += SPEED;
                 break;
-
             case L:
                 x -= SPEED;
                 break;
-
             case LU:
                 x -= SPEED;
                 y -= SPEED;
                 break;
-
             case STOP:
                 break;
         }
-
 
         if (x < 0 || y < 0 || y > TankClient.GAME_HEIGHT || x > TankClient.GAME_WIDTH) {
             this.live = false;
@@ -123,11 +104,9 @@ class Missile {
         if (this.live && this.getRect().intersects(tank.getRect()) && tank.isLive() && this.good != tank.isGood()) {
             tank.setLive();
             this.live = false;
-            Explode e = new Explode(x, y, tankClient);
-            tankClient.explodes.add(e);
+            tankClient.explodes.add(new Explode(x, y, tankClient));
             return true;
         }
         return false;
     }
-
 }
