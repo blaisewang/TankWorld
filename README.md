@@ -3,8 +3,7 @@ A simple online game
 
 
 ### Preview
-![](http://wx4.sinaimg.cn/large/9cbe429fly1fer6jpg0vpj21eo13kac2.jpg)
-
+![](https://camo.githubusercontent.com/6dd9ff9042a5db260577948dc48468361d569f45/687474703a2f2f7778342e73696e61696d672e636e2f6c617267652f39636265343239666c7931666572366a70673076706a3231656f31336b6163322e6a7067)
 
 
 ### How to play
